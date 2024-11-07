@@ -1,9 +1,12 @@
 package com.excel;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 
 import com.excel.service.ExcelToJson;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -13,6 +16,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
@@ -81,26 +85,50 @@ public class ExcelToPdfApplication {
     }
 
     // Method to add the first sheet with a unique design
-    private static void addFirstSheetToPdf(Document document, Map<String, Object> sheetData) {
+    private static void addFirstSheetToPdf(Document document, Map<String, Object> sheetData) throws IOException {
         // Implement your custom design logic for the first sheet here
         // Adjusted column widths to fit within one page
-        Paragraph title = new Paragraph("Timesheet Summary")
-                .setTextAlignment(TextAlignment.CENTER) // Center align the title
-                .setFontSize(15) // Adjust the font size for the title
-                .setFontColor(ColorConstants.BLACK) // Set font color to black
-                .setBold(); // Make the title bold
-                
+    	 // Load the image (logo) - replace with the correct path
+        String logoPath = "C:\\Users\\hp\\Downloads\\Intelizign Logo\\image 3.png";
+        ImageData imageData = ImageDataFactory.create(logoPath);
+        Image logo = new Image(imageData);
+        logo.setWidth(100); // Set appropriate size for the logo
+        logo.setHeight(20);
 
-        // Add the title to the document
-        document.add(title);
+        // Create header table with two columns
+        Table headerTable = new Table(UnitValue.createPercentArray(new float[]{70, 30}));
+        headerTable.setWidth(UnitValue.createPercentValue(100));
+        headerTable.setFixedLayout(); // Set layout for the header table
+        headerTable.setBorder(new SolidBorder(1f));
+        headerTable.setHeight(UnitValue.createPercentValue(100));
 
-        // Add a small space before the table
-        document.add(new Paragraph("\n"));
-    	
+        // Add the left-aligned header text cell
+        Cell leftCell = new Cell()
+                .add(new Paragraph("Timesheets Summary October '24")
+                        .setBold()
+                        .setFontSize(12)
+                        .setTextAlignment(TextAlignment.LEFT))
+                .setBorder(null)
+                .setPaddingRight(10)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE);
+        headerTable.addCell(leftCell);
+
+        // Add the right-aligned logo cell
+        Cell rightCell = new Cell()
+                .add(logo.setHorizontalAlignment(HorizontalAlignment.RIGHT))
+                .setBorder(null)
+                .setPaddingLeft(20)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE);
+        headerTable.addCell(rightCell);
+
+        // Add the header table to the document
+        document.add(headerTable);
+        Paragraph spacer = new Paragraph("").setMarginBottom(10); // Adjust the margin as needed
+        document.add(spacer);
     	
         float[] columnWidths = {80, 80, 60, 60, 60, 60, 50};
         Table table = new Table(UnitValue.createPercentArray(columnWidths));
-
+        table.setBorder(new SolidBorder(1f));
         // Define header color
         Color headerColor = new DeviceRgb(255, 255, 255); // Red color
 
@@ -165,39 +193,64 @@ public class ExcelToPdfApplication {
 
 
     // Method to add the other sheets with a uniform design
-    private static void addSheetToPdf(Document document, Map<String, Object> sheetData) {
+    private static void addSheetToPdf(Document document, Map<String, Object> sheetData) throws IOException {
     	 // Add project information from each sheet
         String projectName = (String) sheetData.get("projectName");
         String employeeName = (String) sheetData.get("EmployeeName");
         String poNumber = (String) sheetData.get("PO Number");
 
-        Paragraph projectNameParagraph = new Paragraph("Project Name: " + projectName)
-                .setBold()
-                .setFontSize(7)
-                .setMarginBottom(3); // Small gap after each line
+        // Load the image (logo) - replace with the correct path
+        String logoPath = "C:\\Users\\hp\\Downloads\\Intelizign Logo\\image 3.png";
+        ImageData imageData = ImageDataFactory.create(logoPath);
+        Image logo = new Image(imageData);
+        logo.setWidth(100); // Set appropriate size for the logo
+        logo.setHeight(20);
 
-        Paragraph employeeNameParagraph = new Paragraph("Employee Name: " + employeeName)
-                .setBold()
-                .setFontSize(7)
-                .setMarginBottom(3); // Small gap after each line
+        // Create header table with two columns
+        Table headerTable = new Table(UnitValue.createPercentArray(new float[]{70, 30}));
+        headerTable.setWidth(UnitValue.createPercentValue(100));
+        headerTable.setFixedLayout(); // Set layout for the header table
+        headerTable.setBorder(new SolidBorder(1f));
+        headerTable.setHeight(UnitValue.createPercentValue(100));
 
-        Paragraph poNumberParagraph = new Paragraph("PO Number: " + poNumber)
-                .setBold()
-                .setFontSize(7)
-                .setMarginBottom(6); 
+        // Add the left-aligned header text cell
+        Cell leftCell = new Cell()
+                .add(new Paragraph("EmployeeName : "+employeeName)
+                        .setBold()
+                        .setFontSize(12)
+                        .setTextAlignment(TextAlignment.LEFT))
+                .add(new Paragraph("Po Number : "+poNumber) // Second paragraph
+                        .setFontSize(10) // Adjust font size as needed
+                        .setTextAlignment(TextAlignment.LEFT))
+                .setBorder(null)
+                .setPaddingRight(6)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE);
+        headerTable.addCell(leftCell);
+
+        // Add the right-aligned logo cell
+        Cell rightCell = new Cell()
+                .add(logo.setHorizontalAlignment(HorizontalAlignment.RIGHT))
+                .setBorder(null)
+                .setPaddingLeft(8)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE);
+        headerTable.addCell(rightCell);
+
+        // Add the header table to the document
+        document.add(headerTable);
+        Paragraph spacer = new Paragraph("").setMarginBottom(10); // Adjust the margin as needed
+        document.add(spacer);
         
-        document.add(projectNameParagraph);
-        document.add(employeeNameParagraph);
-        document.add(poNumberParagraph);
-
+        
         // Create a table for timesheet data
         float[] columnWidths = {1, 2, 1, 2, 4};
         Table table = new Table(columnWidths);
-
+        table.setWidth(UnitValue.createPercentValue(100));
+        table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+        table.setBorder(new SolidBorder(1f));
         // Add table headers
         String[] headers = {"Slno", "Date", "Hours", "Work Package Name", "Activities"};
         for (String header : headers) {
-            table.addHeaderCell(new Cell().add(new Paragraph(header).setFontSize(6)));
+            table.addHeaderCell(new Cell().add(new Paragraph(header).setFontSize(8).setBold().setTextAlignment(TextAlignment.CENTER)));
         }
 
         // Initialize total hours variable
@@ -226,11 +279,11 @@ public class ExcelToPdfApplication {
             }
 
             // Add each field in the entry to the table with optional background color
-            addCellWithBackgroundColor(table, entry.get("Slno"), bgColor);
-            addCellWithBackgroundColor(table, entry.get("Date"), bgColor);
-            addCellWithBackgroundColor(table, entry.get("Hours"), bgColor);
-            addCellWithBackgroundColor(table, entry.get("work package Name"), bgColor);
-            addCellWithBackgroundColor(table, entry.get("Activities"), bgColor);
+            addCellWithBackgroundColor(table, entry.get("Slno"));
+            addCellWithBackgroundColor(table, entry.get("Date"));
+            addCellWithBackgroundColor(table, entry.get("Hours"));
+            addCellWithBackgroundColor(table, entry.get("work package Name"));
+            addCellWithBackgroundColor(table, entry.get("Activities"));
         }
 
         // Add a row for the total hours
@@ -242,15 +295,27 @@ public class ExcelToPdfApplication {
 
     }
     // Helper method to add a cell with an optional background color
-    private static void addCellWithBackgroundColor(Table table, String content, DeviceRgb bgColor) {
-        Cell cell = new Cell().add(new Paragraph(content).setFontSize(6));
-        if (bgColor != null) {
-            cell.setBackgroundColor(bgColor);
-        }
+ // Helper method to add a cell without background color
+    private static void addCellWithBackgroundColor(Table table, String content) {
+        // Create a new cell and add the content
+        Cell cell = new Cell().add(new Paragraph(content).setFontSize(6))
+                .setTextAlignment(TextAlignment.CENTER)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE);
+
+        // Allow text to wrap within the cell
+        cell.setKeepTogether(false); // Allows content to flow to the next line if it's too long
+        cell.setWordSpacing(0.5f); // Set word spacing to prevent cramped wrapping
+        cell.setMinHeight(10); // Minimum height for the cell
+
+        // Set padding and height of the cell to prevent cutting off data
         cell.setPadding(2);
-        cell.setHeight(10);
+        // cell.setBorder(new SolidBorder(1f));
+        // cell.setHeightAuto(); // Ensure height adjusts automatically based on content
+
+        // Add the cell to the table
         table.addCell(cell);
     }
+
 
  // Method to create a header cell with adjusted font size and cell padding
     private static Cell createHeaderCell(String text, Color backgroundColor) {

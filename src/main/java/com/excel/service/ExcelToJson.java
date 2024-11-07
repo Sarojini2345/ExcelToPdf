@@ -114,7 +114,7 @@ public class ExcelToJson {
 	    sheetData.put("PO Number", getMergedCellValue(sheet, 2, 2).split(":").length > 1 ? getMergedCellValue(sheet, 2, 2).split(":")[1].trim() : "");
 
 	    // Iterate through the rows starting from row 6
-	    for (int i = 5; i <= sheet.getLastRowNum(); i++) {
+	    for (int i = 5; i < sheet.getLastRowNum(); i++) {
 	        Row row = sheet.getRow(i);
 	        if (row == null) continue; // Skip empty rows
 
